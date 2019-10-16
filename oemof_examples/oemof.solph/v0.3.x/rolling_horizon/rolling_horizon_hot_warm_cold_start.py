@@ -17,10 +17,10 @@ from oemof.outputlib import processing, views
 # read sequence data
 full_filename = os.path.join(os.path.dirname(__file__),
                              'data.csv')
-data = pd.read_csv(full_filename, sep=",")
+data = pd.read_csv(full_filename, sep=";")
 
 # select periods
-periods = len(data)-1
+periods = 24
 
 # create an energy system
 idx = pd.date_range('1/1/2017', periods=periods, freq='H')
@@ -37,27 +37,31 @@ demand_el = Sink(
 
 pp1 = Source(
     label='power_plant1',
-    outputs={bel: Flow(nominal_value=10, variable_costs=10.25)})
+    outputs={bel: Flow(nominal_value=25, variable_costs=10.25)})
 
 pp2 = Source(
     label='power_plant2',
     outputs={
         bel: Flow(
-            nominal_value=10, min=0.5, max=1.0, variable_costs=5,
-            rolllinghorizon=RollingHorizon(t_start_cold=5,
-                                           t_start_warm=3,
-                                           t_start_hot=1,
-                                           cold_start_costs=5,
-                                           warm_start_cost=4,
-                                           hot_start_costs=1,
-                                           shutdown_costs=2,
-                                           optimized_status=data['operation_status']))})
+            nominal_value=10, min=0.3, max=1.0, variable_costs=5,
+            rollinghorizon=RollingHorizon(t_start_cold=5,
+                                          t_start_warm=3,
+                                          t_start_hot=1,
+                                          cold_start_costs=5,
+                                          warm_start_costs=4,
+                                          hot_start_costs=1,
+                                          T_int=24,
+                                          T=0,
+                                          flow_min_last=0.3,
+                                          minimum_downtime=1,
+                                          optimized_status=data.loc[:periods-1, 'optimized_status'].tolist(),
+                                          optimized_flow=data.loc[:periods-1, 'optimized_flow'].tolist()))})
 
 # create an optimization problem and solve it
 om = Model(es)
 
 # debugging
-# om.write('problem.lp', io_options={'symbolic_solver_labels': True})
+om.write('problem.lp', io_options={'symbolic_solver_labels': True})
 
 # solve model
 om.solve(solver='cplex', solve_kwargs={'tee': True})
@@ -65,15 +69,15 @@ om.solve(solver='cplex', solve_kwargs={'tee': True})
 # create result object
 results = processing.results(om)
 
-# plot data
+# plot result_data
 if plt is not None:
     # plot electrical bus
-    data = views.node(results, 'bel')['sequences']
-    data[(('bel', 'demand_el'), 'flow')] *= -1
-    columns = [c for c in data.columns
+    result_data = views.node(results, 'bel')['sequences']
+    result_data[(('bel', 'demand_el'), 'flow')] *= -1
+    columns = [c for c in result_data.columns
                if not any(s in c for s in ['status'])]
-    data = data[columns]
-    ax = data.plot(kind='line', drawstyle='steps-post', grid=True, rot=0)
+    result_data = result_data[columns]
+    ax = result_data.plot(kind='line', drawstyle='steps-post', grid=True, rot=0)
     ax.set_xlabel('Hour')
     ax.set_ylabel('P (MW)')
     plt.show()

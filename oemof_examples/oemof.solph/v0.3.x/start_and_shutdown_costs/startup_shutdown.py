@@ -76,7 +76,7 @@ om = solph.Model(es)
 #om.write('problem.lp', io_options={'symbolic_solver_labels': True})
 
 # solve model
-om.solve(solver='cbc', solve_kwargs={'tee': True})
+om.solve(solver='cplex', solve_kwargs={'tee': True})
 
 # create result object
 results = processing.results(om)

@@ -149,19 +149,19 @@ m = Model(energysystem=es)
 
 # m.write('lopf.lp', io_options={'symbolic_solver_labels': True})
 
-m.solve(solver='cbc',
+m.solve(solver='cplex',
         solve_kwargs={'tee': True, 'keepfiles': False})
 
 
 m.results()
 
-graph = create_nx_graph(es)
-
-draw_graph(graph, plot=True, layout='neato', node_size=3000,
-           node_color={
-                  'b_0': '#cd3333',
-                  'b_1': '#7EC0EE',
-                  'b_2': '#eeac7e'})
+#graph = create_nx_graph(es)
+#
+#draw_graph(graph, plot=True, layout='neato', node_size=3000,
+#           node_color={
+#                  'b_0': '#cd3333',
+#                  'b_1': '#7EC0EE',
+#                  'b_2': '#eeac7e'})
 
 
 results = processing.results(m)
