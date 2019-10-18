@@ -34,7 +34,7 @@ bel = Bus(label='bel')
 demand_el = Sink(
     label='demand_el',
     inputs={bel: Flow(
-        fixed=True, actual_value=data['demand_el'], nominal_value=10)})
+        fixed=True, actual_value=data['demand_el'], nominal_value=8)})
 
 pp1 = Source(
     label='power_plant1',
@@ -55,7 +55,7 @@ pp2 = Source(
 
 print(f'Time for es creation: {time()-start}')
 start = time()
-om = MultiPeriodModel(es, interval_length=24)
+om = MultiPeriodModel(es, interval_length=48, period=24)
 print(f'Time for model creation: {time()-start:.6f}')
 # create an optimization problem and solve it
 start = time()
@@ -68,7 +68,7 @@ if plt is not None:
         result_data = views.node(results, 'bel')['sequences']
         result_data[(('bel', 'demand_el'), 'flow')] *= -1
         columns = [c for c in result_data.columns
-                   if not any(s in c for s in ['status'])]
+                   if not any(s in str(c) for s in ['status', 'costs'])]
         result_data = result_data[columns]
         ax = result_data.plot(kind='line', drawstyle='steps-post',
                               grid=True, rot=0)
@@ -78,3 +78,4 @@ if plt is not None:
         return result_data
 
 plotted_results = plot_results(om.multiperiod_results)
+plt.plot(plotted_results.iloc[:,2])
