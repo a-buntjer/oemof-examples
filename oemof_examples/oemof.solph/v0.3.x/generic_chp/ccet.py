@@ -68,10 +68,12 @@ ccet = solph.components.GenericCHP(
     fuel_input={bgas: solph.Flow(
         H_L_FG_share_max=[0.19 for p in range(0, periods)])},
     electrical_output={bel: solph.Flow(
+        nominal_value=200, min= 80/200,
         P_max_woDH=[200 for p in range(0, periods)],
         P_min_woDH=[80 for p in range(0, periods)],
         Eta_el_max_woDH=[0.53 for p in range(0, periods)],
-        Eta_el_min_woDH=[0.43 for p in range(0, periods)])},
+        Eta_el_min_woDH=[0.43 for p in range(0, periods)],
+        nonconvex=solph.NonConvex(startup_costs=5, shutdown_costs=5))},
     heat_output={bth: solph.Flow(
         Q_CW_min=[30 for p in range(0, periods)])},
     Beta=[0.19 for p in range(0, periods)],
@@ -84,7 +86,7 @@ om = solph.Model(es)
 # om.write('generic_chp.lp', io_options={'symbolic_solver_labels': True})
 
 # solve model
-om.solve(solver='cbc', solve_kwargs={'tee': True})
+om.solve(solver='cplex', solve_kwargs={'tee': True})
 
 # create result object
 results = processing.results(om)

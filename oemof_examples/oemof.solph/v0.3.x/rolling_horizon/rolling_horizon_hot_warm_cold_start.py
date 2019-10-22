@@ -10,8 +10,8 @@ from matplotlib import pyplot as plt
 # oemof imports
 from oemof.network import Node
 # solph imports
-from oemof.solph import (EnergySystem, MultiPeriodModel, Flow, Source, Sink, Bus,
-                         RollingHorizon)
+from oemof.solph import (EnergySystem, MultiPeriodModel, Flow, Source, Sink,
+                         Bus, RollingHorizon)
 from oemof.outputlib import processing, views
 from time import time
 # read sequence data
@@ -78,4 +78,4 @@ if plt is not None:
         return result_data
 
 plotted_results = plot_results(om.multiperiod_results)
-plt.plot(plotted_results.iloc[:,2])
+plt.plot(plotted_results.iloc[:, 2])

@@ -95,13 +95,13 @@ def storage_example():
             outputs={bel: solph.Flow()},
             initial_storage_level=data_set['initial_storage_level'],
             balanced=data_set['balanced']))
-    
+
     # create an optimization problem and solve it
     om = solph.Model(es)
-    
+
     # solve model
-    om.solve(solver='cbc')
-    
+    om.solve(solver='cplex')
+
     # create result object
     results = processing.results(om)
 
@@ -148,7 +148,7 @@ def storage_example():
     print(costs)
     print(balance)
 
-
+    return om
 if __name__ == '__main__':
-    storage_example()
+    om = storage_example()
 
